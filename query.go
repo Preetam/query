@@ -1,14 +1,10 @@
 package query
 
-import (
-	"encoding/json"
-	"time"
-)
+import "encoding/json"
 
 // Query describes a query.
 type Query struct {
 	Columns    []ColumnDesc `json:"columns,omitempty"`
-	TimeRange  TimeRange    `json:"time_range"`
 	GroupBy    []ColumnDesc `json:"group_by,omitempty"`
 	Filters    []FilterDesc `json:"filters,omitempty"`
 	PointSize  int64        `json:"point_size,omitempty"`
@@ -21,12 +17,6 @@ type Query struct {
 type ColumnDesc struct {
 	Name      string `json:"name"`
 	Aggregate string `json:"aggregate,omitempty"`
-}
-
-// TimeRange represents start and end timestamps.
-type TimeRange struct {
-	Start time.Time `json:"start"`
-	End   time.Time `json:"end"`
 }
 
 // FilterDesc represents a filter expression.
