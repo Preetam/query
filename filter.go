@@ -98,10 +98,8 @@ type Filter struct {
 
 func (f Filter) Filter(r Row) bool {
 	if v, ok := r.Get(f.column); !ok {
-		fmt.Println("===== column doesn't exist")
 		return false
 	} else {
-		fmt.Printf("%T %v %T %s", v, v, f.value, f.value)
 		return f.filterFunc(v, f.value)
 	}
 }
