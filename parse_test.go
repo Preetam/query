@@ -21,3 +21,9 @@ func TestParser(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkParser(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		Parse("SELECT a, b, min(c), sum(d) WHERE a < 1, b < 2, c < 3 GROUP BY a, b ORDER BY min(c) DESC LIMIT 10")
+	}
+}
