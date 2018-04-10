@@ -8,7 +8,6 @@ var (
 
 type Table interface {
 	NewCursor() (Cursor, error)
-	NewCursorForFields(fields []string) (Cursor, error)
 }
 
 type Cursor interface {
@@ -63,7 +62,7 @@ func NewExecutor(table Table) *Executor {
 }
 
 // Execute executes a query and returns a set of rows for the result.
-func (e *Executor) Execute(query Query) (*Result, error) {
+func (e *Executor) Execute(query *Query) (*Result, error) {
 	// Get a cursor
 	var cur Cursor
 	var err error
@@ -110,6 +109,7 @@ CursorLoop:
 			v, _ := curRow.Get(field)
 			resRow.values[field] = v
 		}
+		resultRows = append(resultRows, resRow)
 		if query.Limit > 0 && len(resultRows) == query.Limit {
 			break
 		}

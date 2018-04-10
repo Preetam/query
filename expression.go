@@ -3,7 +3,6 @@ package query
 import (
 	"encoding/json"
 	"strconv"
-	"time"
 )
 
 type expression struct {
@@ -66,11 +65,6 @@ func (e *expression) SetDescending() {
 
 func (e *expression) SetLimit(num string) {
 	e.query.Limit, _ = strconv.Atoi(num)
-}
-
-func (e *expression) SetPointSize(num string) {
-	dur, _ := time.ParseDuration(num)
-	e.query.PointSize = int64(dur) / 1e3
 }
 
 func Parse(query string) (*Query, error) {
