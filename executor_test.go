@@ -35,11 +35,11 @@ type mapRow map[string]interface{}
 type testDataTable struct{}
 
 func (t testDataTable) NewCursor() (Cursor, error) {
-	return &testDataCursor{data: testData}, nil
+	return &testDataCursor{idx: -1, data: testData}, nil
 }
 
 func TestExecutor(t *testing.T) {
-	query := "SELECT * LIMIT 2"
+	query := "SELECT * WHERE id >= 1 LIMIT 2"
 	exec := NewExecutor(testDataTable{})
 
 	q, err := Parse(query)

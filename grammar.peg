@@ -71,10 +71,10 @@ LogicExpr <-
 OPERATOR <-
   '='
   / '!='
-  / '<'
   / '<='
-  / '>'
   / '>='
+  / '<'
+  / '>'
   / "matches"
 
 FilterKey <-

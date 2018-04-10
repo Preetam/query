@@ -98,8 +98,10 @@ type Filter struct {
 
 func (f Filter) Filter(r Row) bool {
 	if v, ok := r.Get(f.column); !ok {
+		fmt.Println("===== column doesn't exist")
 		return false
 	} else {
+		fmt.Printf("%T %v %T %s", v, v, f.value, f.value)
 		return f.filterFunc(v, f.value)
 	}
 }
@@ -193,7 +195,14 @@ func compareInterfaces(a, b interface{}) int {
 	case int:
 		aInt := a.(int)
 		if bInt, ok := b.(int); ok {
-			return aInt - bInt
+			if aInt == bInt {
+				return 0
+			} else if aInt < bInt {
+				return -1
+			}
+			return 1
+		} else {
+			return 1 - compareInterfaces(b, a)
 		}
 	case float64:
 		aFloat := a.(float64)
@@ -205,6 +214,8 @@ func compareInterfaces(a, b interface{}) int {
 			} else {
 				return 1
 			}
+		} else {
+			return 1 - compareInterfaces(b, a)
 		}
 	case string:
 		aString := a.(string)
@@ -216,6 +227,8 @@ func compareInterfaces(a, b interface{}) int {
 			} else {
 				return 1
 			}
+		} else {
+			return 1 - compareInterfaces(b, a)
 		}
 	case json.Number:
 		aFloat, _ := strconv.ParseFloat(string(a.(json.Number)), 64)
@@ -228,6 +241,8 @@ func compareInterfaces(a, b interface{}) int {
 			} else {
 				return 1
 			}
+		} else {
+			return 1 - compareInterfaces(b, a)
 		}
 	}
 	return -1
