@@ -7,7 +7,6 @@ type Query struct {
 	Columns    []ColumnDesc `json:"columns,omitempty"`
 	GroupBy    []ColumnDesc `json:"group_by,omitempty"`
 	Filters    []FilterDesc `json:"filters,omitempty"`
-	PointSize  int64        `json:"point_size,omitempty"`
 	OrderBy    []ColumnDesc `json:"order_by,omitempty"`
 	Descending bool         `json:"descending"`
 	Limit      int          `json:"limit,omitempty"`
