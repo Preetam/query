@@ -9,7 +9,7 @@ It's *like* SQL, but not SQL. See below.
 ## Supported features
 
 * `SELECT *` without a GROUP BY.
-* `LIMIT*`
+* `LIMIT`
 
 ## Unsupported features
 
