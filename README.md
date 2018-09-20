@@ -1,4 +1,4 @@
-# query
+# query [![GoDoc](https://godoc.org/github.com/Preetam/query?status.svg)](https://godoc.org/github.com/Preetam/query)
 
 SQL-like query executor
 
@@ -9,6 +9,7 @@ It's *like* SQL, but not SQL. See below.
 ## Supported features
 
 * `SELECT *` without a GROUP BY.
+* Basic `WHERE` clause
 * `LIMIT`
 
 ## Unsupported features
