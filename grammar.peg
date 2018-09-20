@@ -64,7 +64,7 @@ LogicExpr <-
   (
     { p.AddFilter() }
     FilterKey
-    _ FilterCondition _
+    _ FilterOperator _
     FilterValue
   )
 
@@ -80,8 +80,8 @@ OPERATOR <-
 FilterKey <-
   < Identifier > { p.SetFilterColumn(text) }
 
-FilterCondition <-
-  < OPERATOR > { p.SetFilterCondition(text) }
+FilterOperator <-
+  < OPERATOR > { p.SetFilterOperator(text) }
 
 FilterValue <-
   < Value > { p.SetFilterValue(text) }

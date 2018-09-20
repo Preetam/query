@@ -51,8 +51,8 @@ func (e *expression) SetFilterColumn(column string) {
 	e.query.Filters[len(e.query.Filters)-1].Column = column
 }
 
-func (e *expression) SetFilterCondition(condition string) {
-	e.query.Filters[len(e.query.Filters)-1].Condition = condition
+func (e *expression) SetFilterOperator(operator string) {
+	e.query.Filters[len(e.query.Filters)-1].Operator = operator
 }
 
 func (e *expression) SetFilterValue(value string) {

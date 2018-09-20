@@ -20,9 +20,9 @@ type ColumnDesc struct {
 
 // FilterDesc represents a filter expression.
 type FilterDesc struct {
-	Column    string      `json:"column"`
-	Condition string      `json:"condition"`
-	Value     interface{} `json:"value"`
+	Column   string      `json:"column"`
+	Operator string      `json:"operator"`
+	Value    interface{} `json:"value"`
 }
 
 func (q Query) String() string {

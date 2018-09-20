@@ -57,10 +57,10 @@ func buildFilters(queryFilters []FilterDesc) ([]Filter, error) {
 	filters := []Filter{}
 
 	for _, f := range queryFilters {
-		filterType := stringToFilterType(f.Condition)
+		filterType := stringToFilterType(f.Operator)
 		switch filterType {
 		case FilterUnknown:
-			return nil, fmt.Errorf("unknown filter %s", f.Condition)
+			return nil, fmt.Errorf("unknown filter %s", f.Operator)
 
 		case FilterEquals:
 			filters = append(filters, EqualsFilter(f.Column, f.Value))
