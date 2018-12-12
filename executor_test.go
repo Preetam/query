@@ -39,7 +39,7 @@ func (t testDataTable) NewCursor() (Cursor, error) {
 }
 
 func TestExecutor(t *testing.T) {
-	query := "SELECT * WHERE id >= 1 LIMIT 2"
+	query := "SELECT * WHERE id > 2"
 	exec := NewExecutor(testDataTable{})
 
 	q, err := Parse(query)

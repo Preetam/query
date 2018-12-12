@@ -28,7 +28,6 @@ const (
 	ruleFilterKey
 	ruleFilterOperator
 	ruleFilterValue
-	ruleValue
 	ruleDescending
 	ruleString
 	ruleStringChar
@@ -65,6 +64,8 @@ const (
 	ruleAction11
 	ruleAction12
 	ruleAction13
+	ruleAction14
+	ruleAction15
 )
 
 var rul3s = [...]string{
@@ -83,7 +84,6 @@ var rul3s = [...]string{
 	"FilterKey",
 	"FilterOperator",
 	"FilterValue",
-	"Value",
 	"Descending",
 	"String",
 	"StringChar",
@@ -120,6 +120,8 @@ var rul3s = [...]string{
 	"Action11",
 	"Action12",
 	"Action13",
+	"Action14",
+	"Action15",
 }
 
 type token32 struct {
@@ -236,7 +238,7 @@ type parser struct {
 
 	Buffer string
 	buffer []rune
-	rules  [52]func() bool
+	rules  [53]func() bool
 	parse  func(rule ...int) error
 	reset  func()
 	Pretty bool
@@ -353,8 +355,12 @@ func (p *parser) Execute() {
 		case ruleAction11:
 			p.SetFilterOperator(text)
 		case ruleAction12:
-			p.SetFilterValue(text)
+			p.SetFilterValueFloat(text)
 		case ruleAction13:
+			p.SetFilterValueInteger(text)
+		case ruleAction14:
+			p.SetFilterValueString(text)
+		case ruleAction15:
 			p.SetDescending()
 
 		}
@@ -1502,21 +1508,51 @@ func (p *parser) Init() {
 			position, tokenIndex = position135, tokenIndex135
 			return false
 		},
-		/* 13 FilterValue <- <(<Value> Action12)> */
+		/* 13 FilterValue <- <((<Float> Action12) / (<Integer> Action13) / (<String> Action14))> */
 		func() bool {
 			position138, tokenIndex138 := position, tokenIndex
 			{
 				position139 := position
 				{
-					position140 := position
-					if !_rules[ruleValue]() {
+					position140, tokenIndex140 := position, tokenIndex
+					{
+						position142 := position
+						if !_rules[ruleFloat]() {
+							goto l141
+						}
+						add(rulePegText, position142)
+					}
+					if !_rules[ruleAction12]() {
+						goto l141
+					}
+					goto l140
+				l141:
+					position, tokenIndex = position140, tokenIndex140
+					{
+						position144 := position
+						if !_rules[ruleInteger]() {
+							goto l143
+						}
+						add(rulePegText, position144)
+					}
+					if !_rules[ruleAction13]() {
+						goto l143
+					}
+					goto l140
+				l143:
+					position, tokenIndex = position140, tokenIndex140
+					{
+						position145 := position
+						if !_rules[ruleString]() {
+							goto l138
+						}
+						add(rulePegText, position145)
+					}
+					if !_rules[ruleAction14]() {
 						goto l138
 					}
-					add(rulePegText, position140)
 				}
-				if !_rules[ruleAction12]() {
-					goto l138
-				}
+			l140:
 				add(ruleFilterValue, position139)
 			}
 			return true
@@ -1524,38 +1560,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position138, tokenIndex138
 			return false
 		},
-		/* 14 Value <- <(Float / Integer / String)> */
-		func() bool {
-			position141, tokenIndex141 := position, tokenIndex
-			{
-				position142 := position
-				{
-					position143, tokenIndex143 := position, tokenIndex
-					if !_rules[ruleFloat]() {
-						goto l144
-					}
-					goto l143
-				l144:
-					position, tokenIndex = position143, tokenIndex143
-					if !_rules[ruleInteger]() {
-						goto l145
-					}
-					goto l143
-				l145:
-					position, tokenIndex = position143, tokenIndex143
-					if !_rules[ruleString]() {
-						goto l141
-					}
-				}
-			l143:
-				add(ruleValue, position142)
-			}
-			return true
-		l141:
-			position, tokenIndex = position141, tokenIndex141
-			return false
-		},
-		/* 15 Descending <- <(('d' / 'D') ('e' / 'E') ('s' / 'S') ('c' / 'C') Action13)> */
+		/* 14 Descending <- <(('d' / 'D') ('e' / 'E') ('s' / 'S') ('c' / 'C') Action15)> */
 		func() bool {
 			position146, tokenIndex146 := position, tokenIndex
 			{
@@ -1620,7 +1625,7 @@ func (p *parser) Init() {
 					position++
 				}
 			l154:
-				if !_rules[ruleAction13]() {
+				if !_rules[ruleAction15]() {
 					goto l146
 				}
 				add(ruleDescending, position147)
@@ -1630,7 +1635,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position146, tokenIndex146
 			return false
 		},
-		/* 16 String <- <('"' <StringChar*> '"')+> */
+		/* 15 String <- <('"' <StringChar*> '"')+> */
 		func() bool {
 			position156, tokenIndex156 := position, tokenIndex
 			{
@@ -1693,7 +1698,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position156, tokenIndex156
 			return false
 		},
-		/* 17 StringChar <- <(Escape / (!('"' / '\n' / '\\') .))> */
+		/* 16 StringChar <- <(Escape / (!('"' / '\n' / '\\') .))> */
 		func() bool {
 			position166, tokenIndex166 := position, tokenIndex
 			{
@@ -1746,7 +1751,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position166, tokenIndex166
 			return false
 		},
-		/* 18 Escape <- <(SimpleEscape / OctalEscape / HexEscape / UniversalCharacter)> */
+		/* 17 Escape <- <(SimpleEscape / OctalEscape / HexEscape / UniversalCharacter)> */
 		func() bool {
 			position174, tokenIndex174 := position, tokenIndex
 			{
@@ -1783,7 +1788,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position174, tokenIndex174
 			return false
 		},
-		/* 19 SimpleEscape <- <('\\' ('\'' / '"' / '?' / '\\' / 'a' / 'b' / 'f' / 'n' / 'r' / 't' / 'v'))> */
+		/* 18 SimpleEscape <- <('\\' ('\'' / '"' / '?' / '\\' / 'a' / 'b' / 'f' / 'n' / 'r' / 't' / 'v'))> */
 		func() bool {
 			position180, tokenIndex180 := position, tokenIndex
 			{
@@ -1877,7 +1882,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position180, tokenIndex180
 			return false
 		},
-		/* 20 OctalEscape <- <('\\' [0-7] [0-7]? [0-7]?)> */
+		/* 19 OctalEscape <- <('\\' [0-7] [0-7]? [0-7]?)> */
 		func() bool {
 			position193, tokenIndex193 := position, tokenIndex
 			{
@@ -1919,7 +1924,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position193, tokenIndex193
 			return false
 		},
-		/* 21 HexEscape <- <('\\' 'x' HexDigit+)> */
+		/* 20 HexEscape <- <('\\' 'x' HexDigit+)> */
 		func() bool {
 			position199, tokenIndex199 := position, tokenIndex
 			{
@@ -1952,7 +1957,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position199, tokenIndex199
 			return false
 		},
-		/* 22 UniversalCharacter <- <(('\\' 'u' HexQuad) / ('\\' 'U' HexQuad HexQuad))> */
+		/* 21 UniversalCharacter <- <(('\\' 'u' HexQuad) / ('\\' 'U' HexQuad HexQuad))> */
 		func() bool {
 			position203, tokenIndex203 := position, tokenIndex
 			{
@@ -1996,7 +2001,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position203, tokenIndex203
 			return false
 		},
-		/* 23 HexQuad <- <(HexDigit HexDigit HexDigit HexDigit)> */
+		/* 22 HexQuad <- <(HexDigit HexDigit HexDigit HexDigit)> */
 		func() bool {
 			position207, tokenIndex207 := position, tokenIndex
 			{
@@ -2020,7 +2025,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position207, tokenIndex207
 			return false
 		},
-		/* 24 HexDigit <- <([a-f] / [A-F] / [0-9])> */
+		/* 23 HexDigit <- <([a-f] / [A-F] / [0-9])> */
 		func() bool {
 			position209, tokenIndex209 := position, tokenIndex
 			{
@@ -2054,7 +2059,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position209, tokenIndex209
 			return false
 		},
-		/* 25 Unsigned <- <[0-9]+> */
+		/* 24 Unsigned <- <[0-9]+> */
 		func() bool {
 			position214, tokenIndex214 := position, tokenIndex
 			{
@@ -2081,7 +2086,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position214, tokenIndex214
 			return false
 		},
-		/* 26 Sign <- <('-' / '+')> */
+		/* 25 Sign <- <('-' / '+')> */
 		func() bool {
 			position218, tokenIndex218 := position, tokenIndex
 			{
@@ -2108,7 +2113,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position218, tokenIndex218
 			return false
 		},
-		/* 27 Integer <- <<(Sign? Unsigned)>> */
+		/* 26 Integer <- <<(Sign? Unsigned)>> */
 		func() bool {
 			position222, tokenIndex222 := position, tokenIndex
 			{
@@ -2137,7 +2142,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position222, tokenIndex222
 			return false
 		},
-		/* 28 Float <- <(Integer ('.' Unsigned)? (('e' / 'E') Integer)?)> */
+		/* 27 Float <- <(Integer ('.' Unsigned)? (('e' / 'E') Integer)?)> */
 		func() bool {
 			position227, tokenIndex227 := position, tokenIndex
 			{
@@ -2191,7 +2196,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position227, tokenIndex227
 			return false
 		},
-		/* 29 Identifier <- <(!Keyword <(([a-z] / [A-Z] / '_') IdChar*)>)> */
+		/* 28 Identifier <- <(!Keyword <(([a-z] / [A-Z] / '_') IdChar*)>)> */
 		func() bool {
 			position235, tokenIndex235 := position, tokenIndex
 			{
@@ -2248,7 +2253,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position235, tokenIndex235
 			return false
 		},
-		/* 30 IdChar <- <([a-z] / [A-Z] / [0-9] / '_')> */
+		/* 29 IdChar <- <([a-z] / [A-Z] / [0-9] / '_')> */
 		func() bool {
 			position244, tokenIndex244 := position, tokenIndex
 			{
@@ -2289,7 +2294,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position244, tokenIndex244
 			return false
 		},
-		/* 31 Keyword <- <((('s' 'e' 'l' 'e' 'c' 't') / ('g' 'r' 'o' 'u' 'p' ' ' 'b' 'y') / ('f' 'i' 'l' 't' 'e' 'r' 's') / ('o' 'r' 'd' 'e' 'r' ' ' 'b' 'y') / ('d' 'e' 's' 'c') / ('l' 'i' 'm' 'i' 't')) !IdChar)> */
+		/* 30 Keyword <- <((('s' 'e' 'l' 'e' 'c' 't') / ('g' 'r' 'o' 'u' 'p' ' ' 'b' 'y') / ('f' 'i' 'l' 't' 'e' 'r' 's') / ('o' 'r' 'd' 'e' 'r' ' ' 'b' 'y') / ('d' 'e' 's' 'c') / ('l' 'i' 'm' 'i' 't')) !IdChar)> */
 		func() bool {
 			position250, tokenIndex250 := position, tokenIndex
 			{
@@ -2481,7 +2486,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position250, tokenIndex250
 			return false
 		},
-		/* 32 _ <- <(' ' / '\t' / ('\r' '\n') / '\n' / '\r')*> */
+		/* 31 _ <- <(' ' / '\t' / ('\r' '\n') / '\n' / '\r')*> */
 		func() bool {
 			{
 				position260 := position
@@ -2536,7 +2541,7 @@ func (p *parser) Init() {
 			}
 			return true
 		},
-		/* 33 LPAR <- <(_ '(' _)> */
+		/* 32 LPAR <- <(_ '(' _)> */
 		func() bool {
 			position268, tokenIndex268 := position, tokenIndex
 			{
@@ -2558,7 +2563,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position268, tokenIndex268
 			return false
 		},
-		/* 34 RPAR <- <(_ ')' _)> */
+		/* 33 RPAR <- <(_ ')' _)> */
 		func() bool {
 			position270, tokenIndex270 := position, tokenIndex
 			{
@@ -2580,7 +2585,7 @@ func (p *parser) Init() {
 			position, tokenIndex = position270, tokenIndex270
 			return false
 		},
-		/* 35 COMMA <- <(_ ',' _)> */
+		/* 34 COMMA <- <(_ ',' _)> */
 		func() bool {
 			position272, tokenIndex272 := position, tokenIndex
 			{
@@ -2602,21 +2607,21 @@ func (p *parser) Init() {
 			position, tokenIndex = position272, tokenIndex272
 			return false
 		},
-		/* 37 Action0 <- <{ p.currentSection = "columns" }> */
+		/* 36 Action0 <- <{ p.currentSection = "columns" }> */
 		func() bool {
 			{
 				add(ruleAction0, position)
 			}
 			return true
 		},
-		/* 38 Action1 <- <{ p.currentSection = "group by" }> */
+		/* 37 Action1 <- <{ p.currentSection = "group by" }> */
 		func() bool {
 			{
 				add(ruleAction1, position)
 			}
 			return true
 		},
-		/* 39 Action2 <- <{ p.currentSection = "order by" }> */
+		/* 38 Action2 <- <{ p.currentSection = "order by" }> */
 		func() bool {
 			{
 				add(ruleAction2, position)
@@ -2624,80 +2629,94 @@ func (p *parser) Init() {
 			return true
 		},
 		nil,
-		/* 41 Action3 <- <{ p.SetLimit(text) }> */
+		/* 40 Action3 <- <{ p.SetLimit(text) }> */
 		func() bool {
 			{
 				add(ruleAction3, position)
 			}
 			return true
 		},
-		/* 42 Action4 <- <{ p.AddColumn() }> */
+		/* 41 Action4 <- <{ p.AddColumn() }> */
 		func() bool {
 			{
 				add(ruleAction4, position)
 			}
 			return true
 		},
-		/* 43 Action5 <- <{ p.SetColumnName(text) }> */
+		/* 42 Action5 <- <{ p.SetColumnName(text) }> */
 		func() bool {
 			{
 				add(ruleAction5, position)
 			}
 			return true
 		},
-		/* 44 Action6 <- <{ p.SetColumnName(text) }> */
+		/* 43 Action6 <- <{ p.SetColumnName(text) }> */
 		func() bool {
 			{
 				add(ruleAction6, position)
 			}
 			return true
 		},
-		/* 45 Action7 <- <{ p.SetColumnAggregate(text) }> */
+		/* 44 Action7 <- <{ p.SetColumnAggregate(text) }> */
 		func() bool {
 			{
 				add(ruleAction7, position)
 			}
 			return true
 		},
-		/* 46 Action8 <- <{ p.SetColumnName(text)      }> */
+		/* 45 Action8 <- <{ p.SetColumnName(text)      }> */
 		func() bool {
 			{
 				add(ruleAction8, position)
 			}
 			return true
 		},
-		/* 47 Action9 <- <{ p.AddFilter() }> */
+		/* 46 Action9 <- <{ p.AddFilter() }> */
 		func() bool {
 			{
 				add(ruleAction9, position)
 			}
 			return true
 		},
-		/* 48 Action10 <- <{ p.SetFilterColumn(text) }> */
+		/* 47 Action10 <- <{ p.SetFilterColumn(text) }> */
 		func() bool {
 			{
 				add(ruleAction10, position)
 			}
 			return true
 		},
-		/* 49 Action11 <- <{ p.SetFilterOperator(text) }> */
+		/* 48 Action11 <- <{ p.SetFilterOperator(text) }> */
 		func() bool {
 			{
 				add(ruleAction11, position)
 			}
 			return true
 		},
-		/* 50 Action12 <- <{ p.SetFilterValue(text) }> */
+		/* 49 Action12 <- <{ p.SetFilterValueFloat(text) }> */
 		func() bool {
 			{
 				add(ruleAction12, position)
 			}
 			return true
 		},
-		/* 51 Action13 <- <{ p.SetDescending() }> */
+		/* 50 Action13 <- <{ p.SetFilterValueInteger(text) }> */
 		func() bool {
 			{
 				add(ruleAction13, position)
+			}
+			return true
+		},
+		/* 51 Action14 <- <{ p.SetFilterValueString(text) }> */
+		func() bool {
+			{
+				add(ruleAction14, position)
+			}
+			return true
+		},
+		/* 52 Action15 <- <{ p.SetDescending() }> */
+		func() bool {
+			{
+				add(ruleAction15, position)
 			}
 			return true
 		},

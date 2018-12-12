@@ -1,8 +1,8 @@
 package query
 
 import (
-	"encoding/json"
 	"strconv"
+	"strings"
 )
 
 type expression struct {
@@ -55,8 +55,18 @@ func (e *expression) SetFilterOperator(operator string) {
 	e.query.Filters[len(e.query.Filters)-1].Operator = operator
 }
 
-func (e *expression) SetFilterValue(value string) {
-	e.query.Filters[len(e.query.Filters)-1].Value = json.RawMessage(value)
+func (e *expression) SetFilterValueFloat(value string) {
+	f, _ := strconv.ParseFloat(value, 64)
+	e.query.Filters[len(e.query.Filters)-1].Value = f
+}
+
+func (e *expression) SetFilterValueInteger(value string) {
+	n, _ := strconv.ParseInt(value, 10, 64)
+	e.query.Filters[len(e.query.Filters)-1].Value = int(n)
+}
+
+func (e *expression) SetFilterValueString(value string) {
+	e.query.Filters[len(e.query.Filters)-1].Value = strings.Trim(value, `"`)
 }
 
 func (e *expression) SetDescending() {

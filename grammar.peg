@@ -84,12 +84,9 @@ FilterOperator <-
   < OPERATOR > { p.SetFilterOperator(text) }
 
 FilterValue <-
-  < Value > { p.SetFilterValue(text) }
-
-Value <-
-  Float
-  / Integer
-  / String
+  < Float > { p.SetFilterValueFloat(text) }
+  / < Integer > { p.SetFilterValueInteger(text) }
+  / < String > { p.SetFilterValueString(text) }
 
 #### Order
 

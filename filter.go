@@ -199,6 +199,8 @@ func compareInterfaces(a, b interface{}) int {
 				return -1
 			}
 			return 1
+		} else if bFloat, ok := b.(float64); ok {
+			return compareInterfaces(float64(aInt), bFloat)
 		} else {
 			return 1 - compareInterfaces(b, a)
 		}
