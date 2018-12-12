@@ -1,6 +1,9 @@
 package query
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 var (
 	ErrUnsupported = errors.New("query: unsupported query")
@@ -48,6 +51,10 @@ func (r resultRow) Fields() []string {
 func (r resultRow) Get(field string) (interface{}, bool) {
 	v, ok := r.values[field]
 	return v, ok
+}
+
+func (r resultRow) MarshalJSON() ([]byte, error) {
+	return json.Marshal(r.values)
 }
 
 // Executor is a query executor.
